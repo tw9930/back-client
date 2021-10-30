@@ -1,12 +1,20 @@
 import Vue from 'vue'
 import {
+    Pagination,
+    Tooltip,
+    Switch,
+    Table,
+    TableColumn,
+    Card,
     Menu,
     Submenu,
     MenuItem,
-
+    Breadcrumb,
+    BreadcrumbItem,
     Container,
     Button,
     Form,
+    Col,
     FormItem,
     Input,
     Row,
@@ -30,6 +38,15 @@ Vue.use(Main)
 Vue.use(Button)
 Vue.use(Container)
 Vue.use(Menu)
+Vue.use(BreadcrumbItem)
+Vue.use(Breadcrumb)
+Vue.use(Card)
+Vue.use(Col)
+Vue.use(TableColumn)
+Vue.use(Table)
+Vue.use(Switch)
+Vue.use(Tooltip)
+Vue.use(Pagination)
 
 Vue.use(MenuItem)
 Vue.use(Submenu)

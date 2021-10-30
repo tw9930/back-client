@@ -15,23 +15,32 @@
             background-color="#545c64"
             text-color="#fff"
             active-text-color="#409eff"
-
+            :router= "true"
+            :default-active='default_active'
         >
 <!--          发现这样点开一个菜单时发现其他也会跟着展开。这是因为他们的index值一样-->
-          <el-submenu :index="menus.id.toString()"    v-for="(menus,index) in menus" :key="menus.id">
+          <el-submenu :index="menus.id.toString()"    v-for="(menus,index) in menus" :key="menus.id" >
             <!--            一级菜单模板区-->
             <template slot="title">
               <i :class="  iconObj[index]"></i>
               <span> {{ menus.authName }} </span>
             </template>
-            <el-menu-item :index="itemList.id + '' " v-for="itemList in menus.children"  :key ="itemList.id" > <i class="el-icon-menu"></i>{{ itemList.authName }}</el-menu-item>
+<!--            二级菜单  -->
+            <el-menu-item :index="'/'+itemList.path " v-for="itemList in menus.children"  :key ="itemList.id"  @click = active(itemList.path)>
+              <i class="el-icon-menu" ></i>{{ itemList.authName }}</el-menu-item>
           </el-submenu>
         </el-menu>
 
 
       </el-aside>
       <!--      主体  -->
-      <el-main>Main</el-main>
+      <el-main>
+<!--     route占位符-->
+        <router-view>
+
+        </router-view>
+
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -40,12 +49,13 @@ export default {
   name: 'home',
   data() {
     return {
+      //cai菜单列表的图标
       iconObj:[  'el-icon-user-solid',
         'el-icon-key',
         'el-icon-shopping-bag-1',
         'el-icon-s-order',
-        'el-icon-edit-outline']
-      ,
+        'el-icon-edit-outline'],
+      default_active: '',
       menus: ''
 
     }
@@ -65,6 +75,10 @@ export default {
         this.menus = data
         console.log(data)
       } else console.log(res.meta.msg)
+    },
+    active(path){
+      window.sessionStorage.setItem('default-active',path)
+      this.default_active = '/' + window.sessionStorage.getItem('default-active')
     }
 
   }

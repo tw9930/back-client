@@ -99,3 +99,8 @@ body {
   height: 100%;
   width: 100%;
 }
+.el-card{
+  margin-top: 15px;
+
+  box-shadow: 1px 1px 1px grey !important;
+}
