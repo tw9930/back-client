@@ -20,6 +20,7 @@ export default
         path: '/home',
         component: home,
         redirect:'/welcome',
+        //home路由的子路由配置
         children:[{ path:'/welcome',component:welcome,},
             {path: '/users',component: userList}
         ],

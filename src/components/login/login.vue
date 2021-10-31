@@ -6,11 +6,11 @@
       </div>
       <el-form  class="login_form" ref="login" :rules="rules" :model="login">
         <!--   登录-->
-        <el-form-item class="login_input " prop="user"   >
+        <el-form-item class="login_input " prop="username"   >
           <el-input prefix-icon="iconfont icon-geren"  v-model="login.username">   </el-input>
         </el-form-item>
         <!--   密码-->
-        <el-form-item  class="login_input" prop="pass">
+        <el-form-item  class="login_input" prop="password">
           <el-input prefix-icon=" iconfont icon-dingdan"  type="password" v-model="login.password">   </el-input>
         </el-form-item>
 
