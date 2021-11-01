@@ -20,15 +20,24 @@
       </el-row>
 <!--      点击添加用户区域-->
       <div>
-          <el-dialog title="添加信息" :visible.sync="postUserShow">
-            <el-form :rules="rules" :model="postUsers"  label="用户名" >
-              <el-form-item  >
-                <el-input v-model="postUsers.username"></el-input>
+          <el-dialog title="添加信息" :visible.sync="postUserShow" label-width="100px" @close = "resetAddUserFrom" >
+            <el-form :rules="rules" :model="postUsers"    label-width="100px" ref="postUsers">
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="postUsers.username" ></el-input>
+              </el-form-item>
+              <el-form-item label="用户密码" prop="password">
+                <el-input v-model="postUsers.password"  type="password"></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model="postUsers.email" ></el-input>
+              </el-form-item>
+              <el-form-item label="电话" prop="mobile">
+                <el-input v-model="postUsers.mobile" ></el-input>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
               <el-button @click="postUserShow = false">取 消</el-button>
-              <el-button type="primary" @click="postUserShow = false">确 定</el-button>
+              <el-button type="primary" @click="addUser">确 定</el-button>
             </div>
 
         </el-dialog>
@@ -89,15 +98,44 @@
 export default {
   name:'userList',
   data(){
+    //自定义效验规则 效验手机号
+    let verifyMobile = (rule, value, callback)=>{
+       value =Number(value)
+      if (value.toString() === "NaN"){
+          callback(new Error('请输入数字'))
+      }else {
+        let patt = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/
+        if (!patt.test(value)){
+          callback(new Error("请输入正确格式手机号"))
+        }
+        callback()
+      }
+        }
+
+
     return {
+
+      //添加用户 规则
       rules: {
         username: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          {type:'email', message: '邮箱格式错误', trigger: ['blur', 'change']  }
+        ],
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          // { type: 'number', message: '请输入正确格式手机号', trigger: 'blur' },
+          {validator:verifyMobile, trigger: 'blur' }
         ],
 
       },
-      formLabelWidth:'120px',
       resData:{
         query:'',
         pagenum:1, //多少页
@@ -166,6 +204,31 @@ export default {
     },
     clearable(){
       this.getUsers()
+    },
+  //  重置添加的用户表单
+    resetAddUserFrom(){
+          this.$refs.postUsers.resetFields()
+    },
+  //  添加用户预验证
+    addUser(){
+       //预验证
+       this.$refs.postUsers.validate(async (isSucceed,obj) =>{
+         //通过发请求，添加用户
+         if (isSucceed){
+           const {data:res} = await  this.$http.post('users',this.postUsers)
+           if (res.meta.status >=200 && res.meta.status <=299){
+             this.$message.info('添加用户成功')
+             this.postUserShow = false
+           }
+         else {
+           this.$message.error('添加失败')
+           }
+         }else {
+           console.log(obj)
+           this.$message.error("添加失败")
+         }
+       })
+
     }
   },
   computed:{
