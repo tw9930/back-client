@@ -1,13 +1,13 @@
 <template>
 <div>
-<!--  面包屑  -->
+<!--  面包屑 表格底部 -->
   <el-breadcrumb separator-class="el-icon-arrow-right">
   <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
   <el-breadcrumb-item>活动管理</el-breadcrumb-item>
   <el-breadcrumb-item>活动列表</el-breadcrumb-item>
 
   </el-breadcrumb>
-<!--卡片区域-->
+<!--卡片区域 -->
   <el-card>
     <div >
 <!--      搜索添加区域 -->
@@ -42,6 +42,26 @@
 
         </el-dialog>
       </div>
+      <!-- 修改用户区域  -->
+    <el-dialog title="修改用户" label-width="80px" :visible.sync="isVisible"  @close = "resetAddUserFrom" > 
+      <el-form :rules="rules" :model="userEdits"    label-width="100px" ref="userEdits">
+              <el-form-item label="用户名">
+                <el-input  :placeholder="userEdits.username"
+                            :disabled="true"> ></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model="userEdits.email" ></el-input>
+              </el-form-item>
+              <el-form-item label="手机" prop="mobile">
+                <el-input v-model="userEdits.mobile" ></el-input>
+              </el-form-item>
+      </el-form>
+              <div slot="footer" class="dialog-footer">
+              <el-button @click="isVisible = false">取 消</el-button>
+              <el-button type="primary"  @click="submit">确 定</el-button>
+            </div>
+    </el-dialog>
+
 <!--      用户表格区域-->
       <div>
         <el-table :data ='usersList' border style="width: 100%;margin-top: 15px">
@@ -64,9 +84,9 @@
           </el-table-column>
           <el-table-column label="操作" >
 <!--            作用域插槽-->
-            <template >
+            <template slot-scope="scope">
 
-              <el-button type="primary" icon="el-icon-edit" size="mini" @click="userEdit"></el-button>
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="userEdit(scope.row)"></el-button>
               <el-button type="danger" icon="el-icon-delete" size="mini" @click="userDelete"></el-button>
               <el-tooltip content="分配角色" :enterable='false'>
                 <el-button type="warning" icon="el-icon-finished" size="mini" @click="userWarning"></el-button>
@@ -115,6 +135,15 @@ export default {
 
     return {
 
+        userEdits:{
+              id: "",
+            username:'',
+            mobile:'',
+            email:'',
+
+        },
+      // 修改用户的对话框显示影藏
+      isVisible:false,
       //添加用户 规则
       rules: {
         username: [
@@ -126,16 +155,17 @@ export default {
           { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
         ],
         email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { required: false, message: '请输入邮箱', trigger: 'blur' },
           {type:'email', message: '邮箱格式错误', trigger: ['blur', 'change']  }
         ],
         mobile: [
-          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { required: false, message: '请输入手机号', trigger: 'blur' },
           // { type: 'number', message: '请输入正确格式手机号', trigger: 'blur' },
           {validator:verifyMobile, trigger: 'blur' }
         ],
 
       },
+      // 请求用户列表
       resData:{
         query:'',
         pagenum:1, //多少页
@@ -172,8 +202,11 @@ export default {
        }
     },
     //  对用户的操作
-      userEdit(){
-
+      userEdit(userList){
+          console.log(userList);
+          this.userEdits.id = userList.id
+          this.userEdits.username = userList.username
+          this.isVisible = true;
       },
       userDelete(){
 
