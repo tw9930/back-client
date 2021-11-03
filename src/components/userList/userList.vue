@@ -20,7 +20,7 @@
       </el-row>
 <!--      点击添加用户区域-->
       <div>
-          <el-dialog title="添加信息" :visible.sync="postUserShow" label-width="100px" @close = "resetAddUserFrom" >
+          <el-dialog title="添加信息" :visible.sync="postUserShow" label-width="100px" @close = "resetAddUserFrom(0 )" >
             <el-form :rules="rules" :model="postUsers"    label-width="100px" ref="postUsers">
               <el-form-item label="用户名" prop="username">
                 <el-input v-model="postUsers.username" ></el-input>
@@ -43,7 +43,7 @@
         </el-dialog>
       </div>
       <!-- 修改用户区域  -->
-    <el-dialog title="修改用户" label-width="80px" :visible.sync="isVisible"  @close = "resetAddUserFrom" > 
+    <el-dialog title="修改用户" label-width="80px" :visible.sync="isVisible"  @close = "resetAddUserFrom(1)" > 
       <el-form :rules="rules" :model="userEdits"    label-width="100px" ref="userEdits">
               <el-form-item label="用户名">
                 <el-input  :placeholder="userEdits.username"
@@ -58,9 +58,10 @@
       </el-form>
               <div slot="footer" class="dialog-footer">
               <el-button @click="isVisible = false">取 消</el-button>
-              <el-button type="primary"  @click="submit">确 定</el-button>
+              <el-button type="primary"  @click="usermod">确 定</el-button>
             </div>
     </el-dialog>
+<!-- 删除用户 -->
 
 <!--      用户表格区域-->
       <div>
@@ -87,7 +88,8 @@
             <template slot-scope="scope">
 
               <el-button type="primary" icon="el-icon-edit" size="mini" @click="userEdit(scope.row)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click="userDelete"></el-button>
+        
+              <el-button type="danger"  icon="el-icon-delete" size="mini" @click="userDelete(scope.row)"></el-button>
               <el-tooltip content="分配角色" :enterable='false'>
                 <el-button type="warning" icon="el-icon-finished" size="mini" @click="userWarning"></el-button>
               </el-tooltip>
@@ -119,7 +121,8 @@ export default {
   name:'userList',
   data(){
     //自定义效验规则 效验手机号
-    let verifyMobile = (rule, value, callback)=>{
+    let verifyMobile = ( value, callback)=>{
+      if(!value) callback()
        value =Number(value)
       if (value.toString() === "NaN"){
           callback(new Error('请输入数字'))
@@ -134,7 +137,7 @@ export default {
 
 
     return {
-
+// 修改用户参数
         userEdits:{
               id: "",
             username:'',
@@ -161,7 +164,7 @@ export default {
         mobile: [
           { required: false, message: '请输入手机号', trigger: 'blur' },
           // { type: 'number', message: '请输入正确格式手机号', trigger: 'blur' },
-          {validator:verifyMobile, trigger: 'blur' }
+          {validator:verifyMobile,  trigger: ['blur','change']}
         ],
 
       },
@@ -188,6 +191,27 @@ export default {
  },
 
   methods:{
+      // 修改用户信息
+      usermod(){
+        this.$refs.userEdits.validate(async (isSucceed)=>{
+          if(isSucceed){
+            // 发送请求修改用户信息
+             const {data:res} = await this.$http.put(`users/${this.userEdits.id}`,this.userEdits)
+            if (res.meta.status >=200 && res.meta.status <=299){
+              this.getUsers()
+             this.$message.info('更新成功')
+             this.postUserShow = false
+             this.isVisible = false
+           }
+         else {
+           this.$message.error('更新失败')
+           }
+          }else this.$message.error('更新失败')
+            
+
+        })
+      },
+
      //发送请求获取用户列表数
      async getUsers(){
     const {data:res} = await this.$http.get('users',{
@@ -201,21 +225,40 @@ export default {
          this.$message.error(res.meta.msg)
        }
     },
-    //  对用户的操作
+    //  修改用户信息的操作
       userEdit(userList){
-          console.log(userList);
           this.userEdits.id = userList.id
           this.userEdits.username = userList.username
           this.isVisible = true;
       },
-      userDelete(){
-
+// 删除用户
+      userDelete(userid) {
+      this.$confirm.confirm('是否删除该用户', '确认信息', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消'
+        })
+          .then(async() => {
+          const {data:res} =await this.$http.delete(`users/${userid.id}`)
+             if (res.meta.status >=200 && res.meta.status <=299){
+              this.getUsers()
+           }
+        
+            this.$message({
+              type: 'info',
+              message: res.meta.msg
+            });
+          })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+          });
       },
       userWarning(){
 
       },
   //分页的一些操作
-  //
     handleSizeChange(newVal){
       this.resData.pagesize = newVal
       this.getUsers()
@@ -229,7 +272,7 @@ export default {
      //  亲请求新的数据改变数据最新的状态
      const {data:res} =  await this.$http.put(`users/${newVal.id}/state/${newVal.mg_state}`)
       if (res.meta.status >= 200 && res.meta.status <= 299){
-        this.$message.info('；修改成功')
+        this.$message.info('修改成功')
       }else {
         this.$message.error(res.meta.msg)
         this.getUsers()
@@ -239,13 +282,17 @@ export default {
       this.getUsers()
     },
   //  重置添加的用户表单
-    resetAddUserFrom(){
-          this.$refs.postUsers.resetFields()
+    resetAddUserFrom( flag){
+      if(flag){
+           this.$refs.userEdits.resetFields()
+      }else   this.$refs.postUsers.resetFields()
+        
+        
     },
   //  添加用户预验证
     addUser(){
        //预验证
-       this.$refs.postUsers.validate(async (isSucceed,obj) =>{
+       this.$refs.postUsers.validate(async (isSucceed) =>{
          //通过发请求，添加用户
          if (isSucceed){
            const {data:res} = await  this.$http.post('users',this.postUsers)
@@ -257,7 +304,6 @@ export default {
            this.$message.error('添加失败')
            }
          }else {
-           console.log(obj)
            this.$message.error("添加失败")
          }
        })

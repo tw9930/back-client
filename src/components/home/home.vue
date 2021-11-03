@@ -73,7 +73,6 @@ export default {
 
         let {data} = res
         this.menus = data
-        console.log(data)
       } else console.log(res.meta.msg)
     },
     active(path){

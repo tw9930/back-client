@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import {
+    MessageBox,
     Dialog,
     Pagination,
     Tooltip,
@@ -26,6 +27,9 @@ import {
 Message} from "element-ui";
  // message 需要挂载到vue的全局属性上才能正常使用
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox
+
+
 //注册UI组件 这样才能正常使用
 Vue.use(Form)
 Vue.use(Button)
