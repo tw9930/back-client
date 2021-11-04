@@ -1,6 +1,6 @@
 <template>
 <div>
-<!--  面包屑 表格底部 -->
+<!--  面包屑 顶部 -->
   <el-breadcrumb separator-class="el-icon-arrow-right">
   <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
   <el-breadcrumb-item>活动管理</el-breadcrumb-item>

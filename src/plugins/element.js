@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import {
+    Tag,
     MessageBox,
     Dialog,
     Pagination,
@@ -53,6 +54,7 @@ Vue.use(Switch)
 Vue.use(Tooltip)
 Vue.use(Pagination)
 Vue.use(Dialog)
+Vue.use(Tag)
 
 Vue.use(MenuItem)
 Vue.use(Submenu)
