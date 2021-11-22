@@ -35,7 +35,7 @@ export default {
       return{
         login: {
           username: 'admin',
-          password: 123456,
+          password: '123456',
 
          },
         rules: {
